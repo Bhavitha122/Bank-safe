@@ -1,39 +1,63 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BankService } from '../../services/bank.service';
+import { Customer } from '../../types/Customer';
 
 @Component({
   selector: 'app-customers',
   templateUrl: './customer.component.html',
-  styleUrls: ['./customer.component.scss']
+  styleUrls: ['./customer.component.scss'],
 })
-export class CustomersComponent {
-
+export class CustomersComponent implements OnInit {
   isFormSubmitted = false;
-  customerSuccess = '';
-  customerError = '';
+  customerSuccess: string = '';
+  customerError: string = '';
   customerForm!: FormGroup;
+  customer: Customer | null = null;
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private banksService: BankService
+  ) { }
 
   ngOnInit(): void {
     this.customerForm = this.formBuilder.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      username: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      username: ['', [Validators.required, this.noSpecialCharacters]],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(8),
+        ],
+      ],
+      role: ['', Validators.required]
     });
   }
 
-  onSubmit(): void {
-    this.isFormSubmitted = true;
-
-    if (this.customerForm.invalid) {
-      this.customerError = "Please correct the errors in the form.";
-      this.customerSuccess = "";
-      return;
+  private noSpecialCharacters(control: any): { [key: string]: boolean } | null {
+    const SPECIAL_CHARACTERS_REGEX = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+    if (SPECIAL_CHARACTERS_REGEX.test(control.value)) {
+      return { specialCharacters: true };
     }
+    return null;
+  }
 
-    this.customerSuccess = "Success!";
-    this.customerError = "";
+  onSubmit(): void {
+    if (this.customerForm.valid) {
+      this.banksService.addCustomer(this.customerForm.value).subscribe({
+        next: (response) => {
+          this.customer = response;
+          this.customerSuccess = 'Customer created successfully';
+          this.customerError = '';
+          this.customerForm.reset();
+        },
+        error: (error) => this.customerError = error.error
+      });
+    } else {
+      this.customerError = 'Please fill out all required fields correctly.';
+      this.customerSuccess = '';
+    }
   }
 }
