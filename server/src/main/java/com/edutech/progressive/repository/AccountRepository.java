@@ -22,4 +22,3 @@ public interface AccountRepository extends JpaRepository<Accounts, Integer> {
     @Query("DELETE FROM Accounts acc WHERE acc.customer.customerId = :customerId")
     void deleteByCustomerId(@Param("customerId") int customerId);
 }
-

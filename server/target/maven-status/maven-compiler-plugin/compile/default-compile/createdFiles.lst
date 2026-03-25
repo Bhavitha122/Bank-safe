@@ -34,7 +34,6 @@ com/edutech/progressive/entity/Transactions.class
 com/edutech/progressive/repository/AccountRepository.class
 com/edutech/progressive/service/impl/CustomerServiceImpl.class
 com/edutech/progressive/service/LoanService.class
-com/edutech/progressive/controller/CustomerLoginController.class
 com/edutech/progressive/dao/CustomerDAOImpl.class
 com/edutech/progressive/repository/CustomerRepository.class
 com/edutech/progressive/service/impl/AccountServiceImplJpa.class
